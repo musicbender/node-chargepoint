@@ -398,6 +398,48 @@ npm test
 
 Tests use [Vitest](https://vitest.dev/) and [MSW](https://mswjs.io/) to intercept `fetch` calls. No real network traffic is made during tests.
 
+### E2E Tests
+
+An optional E2E suite runs against the live ChargePoint API using a real home charger. It requires valid credentials and is not run as part of `npm test`.
+
+**Setup:**
+
+Create a `.env.e2e` file in the project root (it is gitignored):
+
+```
+CP_USERNAME=your-chargepoint-email@example.com
+CP_PASSWORD=your-chargepoint-password
+
+# After first run, paste the printed token here to avoid re-logging in:
+# CP_TOKEN=
+```
+
+> **Tip:** `coulomb_sess` tokens contain special characters (`#`, `?`). Always wrap the value in
+> double quotes when exporting to your shell:
+> ```bash
+> export CP_TOKEN="abc...#D???"
+> ```
+
+**Run (read-only — safe with charger in any state):**
+
+```bash
+npm run test:e2e
+```
+
+On first run the session token is printed. Paste it into `CP_TOKEN` in `.env.e2e` to skip
+password re-authentication on subsequent runs.
+
+**Run with mutation tests** (schedule, amperage limit, LED brightness — each test restores
+original values):
+
+```bash
+E2E_MUTATIONS=true npm run test:e2e
+```
+
+The following operations are intentionally excluded from the automated suite due to their
+disruptive nature: `restartHomeCharger()`, `startChargingSession()`, `stopChargingSession()`.
+Use the CLI to invoke these manually.
+
 ### Build
 
 ```bash

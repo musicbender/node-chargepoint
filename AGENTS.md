@@ -113,6 +113,18 @@ avoids a circular runtime dependency. Do not change it to a value import.
 - **Fixtures** — keep fixture JSON files in `tests/fixtures/`. They document the actual API
   response shapes and are the ground truth for type interface coverage.
 
+## E2E testing
+
+E2E tests live in `tests/e2e/` and run against the live ChargePoint API with no mocking.
+
+- **Config**: `vitest.e2e.config.ts` — no MSW `setupFiles`, 30 s timeout, serial `singleFork` execution.
+- **Auth helper**: `tests/e2e/auth.ts` — reads `.env.e2e`, supports token-first + password fallback, prints token after login.
+- **Credentials**: `.env.e2e` (gitignored). See the E2E Tests section in `README.md` for the setup template.
+- **Run**: `npm run test:e2e` — requires filled-in `.env.e2e` or exported env vars (`CP_USERNAME`, `CP_PASSWORD` or `CP_TOKEN`).
+- **Mutations**: disabled by default. Set `E2E_MUTATIONS=true` to run schedule/amperage/LED tests (each restores original state).
+- **Do not import** `tests/setup.ts` or `tests/handlers.ts` from any e2e file — those start the MSW server.
+- **Excluded from automation**: `restartHomeCharger()`, `startChargingSession()`, `stopChargingSession()` — run manually via CLI.
+
 ## What NOT to do
 
 - Do not add `zod`, `yup`, or other runtime validation libraries to the library.
