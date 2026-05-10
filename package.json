@@ -47,11 +47,13 @@
     "lint": "eslint src tests",
     "test": "vitest run",
     "test:watch": "vitest",
-    "prepublishOnly": "npm run build && npm run typecheck"
+    "test:e2e": "vitest run --config vitest.e2e.config.ts",
+    "prepublishOnly": "pnpm build && pnpm typecheck"
   },
   "engines": {
     "node": ">=24"
   },
+  "packageManager": "pnpm@11.0.9",
   "dependencies": {
     "commander": "^12.1.0"
   },
