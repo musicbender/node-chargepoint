@@ -24,8 +24,8 @@ describe('getAccount()', () => {
 
   it('returns a 3-character ISO currency code', async () => {
     const account = await client.getAccount();
-    expect(typeof account.accountBalance.currency).toBe('string');
-    expect(account.accountBalance.currency.length).toBe(3);
+    expect(typeof account.accountBalance.balance.currency).toBe('string');
+    expect(account.accountBalance.balance.currency.length).toBe(3);
   });
 });
 

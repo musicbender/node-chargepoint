@@ -14,6 +14,26 @@ beforeAll(async () => {
     throw new Error('[E2E] No home chargers found on this account. Charger tests cannot run.');
   }
   chargerId = ctx.chargerId;
+
+  if (process.env['E2E_DEBUG'] === 'true') {
+    const ep = client.globalConfig.endpoints;
+    const account = await client.getAccount();
+    const uid = account.user.userId;
+
+    const raw = async (url: string) => {
+      const r = await client._request('GET', url);
+      return r.json();
+    };
+
+    console.log('[E2E DEBUG] charger status:', JSON.stringify(
+      await raw(`${ep.hcpoHcmEndpoint}/api/v1/configuration/users/${uid}/chargers/${chargerId}/status`), null, 2));
+    console.log('[E2E DEBUG] charger config:', JSON.stringify(
+      await raw(`${ep.hcpoHcmEndpoint}/api/v1/configuration/users/${uid}/chargers/${chargerId}/configurations`), null, 2));
+    console.log('[E2E DEBUG] charger schedule:', JSON.stringify(
+      await raw(`${ep.hcpoHcmEndpoint}/api/v1/schedule/charger/${chargerId}/schedule`), null, 2));
+    console.log('[E2E DEBUG] charger tech info:', JSON.stringify(
+      await raw(`${ep.hcpoHcmEndpoint}/api/v1/configuration/users/${uid}/chargers/${chargerId}/technical-info`), null, 2));
+  }
 });
 
 describe('getHomeChargers()', () => {
@@ -58,13 +78,13 @@ describe('getHomeChargerConfig()', () => {
 });
 
 describe('getHomeChargerSchedule()', () => {
-  it('returns schedule with scheduleEnabled and userSchedule time strings', async () => {
+  it('returns schedule with scheduleEnabled and defaultSchedule time strings', async () => {
     const schedule = await client.getHomeChargerSchedule(chargerId);
     expect(typeof schedule.scheduleEnabled).toBe('boolean');
-    expect(typeof schedule.userSchedule.weekdays.startTime).toBe('string');
-    expect(typeof schedule.userSchedule.weekdays.endTime).toBe('string');
-    expect(typeof schedule.userSchedule.weekends.startTime).toBe('string');
-    expect(typeof schedule.userSchedule.weekends.endTime).toBe('string');
+    expect(typeof schedule.defaultSchedule.weekdays.startTime).toBe('string');
+    expect(typeof schedule.defaultSchedule.weekdays.endTime).toBe('string');
+    expect(typeof schedule.defaultSchedule.weekends.startTime).toBe('string');
+    expect(typeof schedule.defaultSchedule.weekends.endTime).toBe('string');
   });
 });
 
@@ -76,27 +96,27 @@ describe('getHomeChargerSchedule()', () => {
 describe.skipIf(!MUTATIONS_ENABLED)('setHomeChargerSchedule() + disableHomeChargerSchedule() [MUTATION]', () => {
   it('changes schedule then restores original', async () => {
     const original = await client.getHomeChargerSchedule(chargerId);
-    const testStart = original.userSchedule.weekdays.startTime === '23:00' ? '22:00' : '23:00';
+    const testStart = original.defaultSchedule.weekdays.startTime === '23:00' ? '22:00' : '23:00';
 
     try {
       await client.setHomeChargerSchedule(
         chargerId,
         testStart,
-        original.userSchedule.weekdays.endTime,
-        original.userSchedule.weekends.startTime,
-        original.userSchedule.weekends.endTime,
+        original.defaultSchedule.weekdays.endTime,
+        original.defaultSchedule.weekends.startTime,
+        original.defaultSchedule.weekends.endTime,
       );
 
       const changed = await client.getHomeChargerSchedule(chargerId);
       expect(changed.scheduleEnabled).toBe(true);
-      expect(changed.userSchedule.weekdays.startTime).toBe(testStart);
+      expect(changed.defaultSchedule.weekdays.startTime).toBe(testStart);
     } finally {
       await client.setHomeChargerSchedule(
         chargerId,
-        original.userSchedule.weekdays.startTime,
-        original.userSchedule.weekdays.endTime,
-        original.userSchedule.weekends.startTime,
-        original.userSchedule.weekends.endTime,
+        original.defaultSchedule.weekdays.startTime,
+        original.defaultSchedule.weekdays.endTime,
+        original.defaultSchedule.weekends.startTime,
+        original.defaultSchedule.weekends.endTime,
       );
       if (!original.scheduleEnabled) {
         await client.disableHomeChargerSchedule(chargerId);
