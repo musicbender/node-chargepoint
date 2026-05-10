@@ -6,3 +6,5 @@ dist/
 .env.e2e
 coverage/
 .worktrees/
+package-lock.json
+yarn.lock

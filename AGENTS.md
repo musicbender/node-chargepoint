@@ -11,10 +11,10 @@ wrapper around the ChargePoint EV charging network's private API, publishable on
 ## Essential commands
 
 ```bash
-npm install          # install dependencies
-npm run typecheck    # tsc --noEmit (zero errors required before committing)
-npm test             # vitest run (all 37 tests must pass)
-npm run build        # tsup — produces dist/ (CJS + ESM + .d.ts)
+pnpm install         # install dependencies
+pnpm typecheck       # tsc --noEmit (zero errors required before committing)
+pnpm test            # vitest run (all 37 tests must pass)
+pnpm build           # tsup — produces dist/ (CJS + ESM + .d.ts)
 ```
 
 Run **typecheck → test → build** in that order before every commit. All three must succeed.
@@ -120,7 +120,7 @@ E2E tests live in `tests/e2e/` and run against the live ChargePoint API with no 
 - **Config**: `vitest.e2e.config.ts` — no MSW `setupFiles`, 30 s timeout, serial `singleFork` execution.
 - **Auth helper**: `tests/e2e/auth.ts` — reads `.env.e2e`, supports token-first + password fallback, prints token after login.
 - **Credentials**: `.env.e2e` (gitignored). See the E2E Tests section in `README.md` for the setup template.
-- **Run**: `npm run test:e2e` — requires filled-in `.env.e2e` or exported env vars (`CP_USERNAME`, `CP_PASSWORD` or `CP_TOKEN`).
+- **Run**: `pnpm test:e2e` — requires filled-in `.env.e2e` or exported env vars (`CP_USERNAME`, `CP_PASSWORD` or `CP_TOKEN`).
 - **Mutations**: disabled by default. Set `E2E_MUTATIONS=true` to run schedule/amperage/LED tests (each restores original state).
 - **Do not import** `tests/setup.ts` or `tests/handlers.ts` from any e2e file — those start the MSW server.
 - **Excluded from automation**: `restartHomeCharger()`, `startChargingSession()`, `stopChargingSession()` — run manually via CLI.

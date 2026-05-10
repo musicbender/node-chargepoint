@@ -381,19 +381,19 @@ APIError
 ```bash
 git clone https://github.com/musicbender/node-chargepoint.git
 cd node-chargepoint
-npm install
+pnpm install
 ```
 
 ### Type checking
 
 ```bash
-npm run typecheck
+pnpm typecheck
 ```
 
 ### Tests
 
 ```bash
-npm test
+pnpm test
 ```
 
 Tests use [Vitest](https://vitest.dev/) and [MSW](https://mswjs.io/) to intercept `fetch` calls. No real network traffic is made during tests.
@@ -423,7 +423,7 @@ CP_PASSWORD=your-chargepoint-password
 **Run (read-only — safe with charger in any state):**
 
 ```bash
-npm run test:e2e
+pnpm test:e2e
 ```
 
 On first run the session token is printed. Paste it into `CP_TOKEN` in `.env.e2e` to skip
@@ -433,7 +433,7 @@ password re-authentication on subsequent runs.
 original values):
 
 ```bash
-E2E_MUTATIONS=true npm run test:e2e
+E2E_MUTATIONS=true pnpm test:e2e
 ```
 
 The following operations are intentionally excluded from the automated suite due to their
@@ -452,9 +452,9 @@ Produces `dist/index.js` (ESM), `dist/index.cjs` (CommonJS), and `dist/index.d.t
 
 | Command | Purpose |
 |---|---|
-| `npm run typecheck` | TypeScript strict type checking |
-| `npm test` | Run all tests |
-| `npm run build` | Build CJS + ESM + `.d.ts` |
-| `npm run prepublishOnly` | Build + typecheck (runs automatically before `npm publish`) |
+| `pnpm typecheck` | TypeScript strict type checking |
+| `pnpm test` | Run all tests |
+| `pnpm build` | Build CJS + ESM + `.d.ts` |
+| `pnpm prepublishOnly` | Build + typecheck (runs automatically before `pnpm publish`) |
 
 ---
