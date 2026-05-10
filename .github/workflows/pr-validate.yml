@@ -2,7 +2,7 @@ name: PR Validation
 
 on:
   pull_request:
-    types: [opened, synchronize, reopened]
+    types: [opened, synchronize, reopened, labeled, unlabeled]
 
 concurrency:
   group: pr-validate-${{ github.event.pull_request.number }}
@@ -16,6 +16,7 @@ jobs:
   lint:
     name: Lint
     runs-on: ubuntu-latest
+    if: github.event.action != 'labeled' && github.event.action != 'unlabeled'
     steps:
       - uses: actions/checkout@v4
 
@@ -33,6 +34,7 @@ jobs:
   typecheck:
     name: Typecheck
     runs-on: ubuntu-latest
+    if: github.event.action != 'labeled' && github.event.action != 'unlabeled'
     steps:
       - uses: actions/checkout@v4
 
@@ -50,6 +52,7 @@ jobs:
   test:
     name: Unit Tests
     runs-on: ubuntu-latest
+    if: github.event.action != 'labeled' && github.event.action != 'unlabeled'
     steps:
       - uses: actions/checkout@v4
 
