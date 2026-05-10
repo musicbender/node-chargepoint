@@ -14,7 +14,7 @@ ChargePoint is a registered trademark of ChargePoint, Inc.
 ## Installation
 
 ```bash
-npm install node-chargepoint
+pnpm add node-chargepoint
 ```
 
 Requires **Node.js ≥ 24**.
@@ -400,7 +400,7 @@ Tests use [Vitest](https://vitest.dev/) and [MSW](https://mswjs.io/) to intercep
 
 ### E2E Tests
 
-An optional E2E suite runs against the live ChargePoint API using a real home charger. It requires valid credentials and is not run as part of `npm test`.
+An optional E2E suite runs against the live ChargePoint API using a real home charger. It requires valid credentials and is not run as part of `pnpm test`.
 
 **Setup:**
 
@@ -443,7 +443,7 @@ Use the CLI to invoke these manually.
 ### Build
 
 ```bash
-npm run build
+pnpm build
 ```
 
 Produces `dist/index.js` (ESM), `dist/index.cjs` (CommonJS), and `dist/index.d.ts` (type declarations) via [tsup](https://tsup.egoist.dev/).

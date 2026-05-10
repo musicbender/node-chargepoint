@@ -133,5 +133,5 @@ E2E tests live in `tests/e2e/` and run against the live ChargePoint API with no 
 - Do not use `assert { type: 'json' }` for JSON imports — TypeScript 5.3+ requires
   `with { type: 'json' }`.
 - Do not push to `main` directly. Develop on feature branches.
-- Do not skip `npm run typecheck` before committing. The type system is the primary
+- Do not skip `pnpm typecheck` before committing. The type system is the primary
   correctness guarantee for API response parsing.
