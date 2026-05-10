@@ -12,12 +12,12 @@ permissions:
 jobs:
   publish:
     runs-on: ubuntu-latest
-    if: github.actor != 'github-actions[bot]'
+    if: "!startsWith(github.event.head_commit.message, 'chore: release')"
     steps:
       - uses: actions/checkout@v4
         with:
           fetch-depth: 0
-          token: ${{ secrets.GITHUB_TOKEN }}
+          token: ${{ secrets.GH_PAT }}
 
       - uses: pnpm/action-setup@v4
 
