@@ -134,11 +134,21 @@ export class ChargePoint {
         // not JSON
       }
       const captchaUrl = (body as RawObj)?.url;
-      if (
-        typeof captchaUrl === 'string' &&
-        (captchaUrl.includes('datadome') || captchaUrl.includes('captcha-delivery.com'))
-      ) {
-        throw new DatadomeCaptcha(captchaUrl);
+      if (typeof captchaUrl === 'string') {
+        let isDatadomeCaptchaHost = false;
+        try {
+          const host = new URL(captchaUrl).hostname.toLowerCase();
+          isDatadomeCaptchaHost =
+            host === 'datadome' ||
+            host.endsWith('.datadome') ||
+            host === 'captcha-delivery.com' ||
+            host.endsWith('.captcha-delivery.com');
+        } catch {
+          // Invalid URL; ignore and fall through.
+        }
+        if (isDatadomeCaptchaHost) {
+          throw new DatadomeCaptcha(captchaUrl);
+        }
       }
     }
 
