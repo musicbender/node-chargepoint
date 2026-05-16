@@ -134,7 +134,10 @@ export class ChargePoint {
         // not JSON
       }
       const captchaUrl = (body as RawObj)?.url;
-      if (typeof captchaUrl === 'string' && captchaUrl.includes('datadome')) {
+      if (
+        typeof captchaUrl === 'string' &&
+        (captchaUrl.includes('datadome') || captchaUrl.includes('captcha-delivery.com'))
+      ) {
         throw new DatadomeCaptcha(captchaUrl);
       }
     }
