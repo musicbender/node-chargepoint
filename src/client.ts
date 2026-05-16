@@ -139,8 +139,8 @@ export class ChargePoint {
         try {
           const host = new URL(captchaUrl).hostname.toLowerCase();
           isDatadomeCaptchaHost =
-            host === 'datadome' ||
-            host.endsWith('.datadome') ||
+            host === 'datadome.co' ||
+            host.endsWith('.datadome.co') ||
             host === 'captcha-delivery.com' ||
             host.endsWith('.captcha-delivery.com');
         } catch {
