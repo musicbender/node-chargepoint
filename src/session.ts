@@ -1,5 +1,5 @@
 import type { ChargePoint } from './client.js';
-import { APIError, CommunicationError, StartVerificationTimeoutError } from './exceptions.js';
+import { CommunicationError, StartVerificationTimeoutError } from './exceptions.js';
 import type { ChargingSessionUpdate, PowerUtility, StartSessionOptions, VehicleInfo } from './types.js';
 
 const sleep = (ms: number): Promise<void> =>
