@@ -1,11 +1,3 @@
-## [v0.5.0] — 2026-05-23
-
-### New Features
-- Add `StartVerificationTimeoutError` — thrown instead of generic `APIError` when `ChargingSession.start()` succeeds in sending the start command but `getUserChargingStatus` polling times out before the backend propagates the new session. The error carries `deviceId`, `pollTimeoutMs`, `pollAttempts`, and `chargerConfirmedCharging` (set to `true` when a subsequent `getHomeChargerStatus` call confirms the charger is actively charging). Callers can distinguish this soft failure from a true start failure with `instanceof StartVerificationTimeoutError`.
-- **Migration note:** Existing code that catches `APIError` uniformly continues to work — `StartVerificationTimeoutError` extends `APIError`. Code that previously caught `APIError` and assumed it meant the start definitely failed should be updated to handle `StartVerificationTimeoutError` separately.
-
----
-
 ## [v0.4.2](https://github.com/musicbender/node-chargepoint/releases/tag/v0.4.2) — 2026-05-17
 
 <!-- Release notes generated using configuration in .github/release.yml at v0.4.2 -->
