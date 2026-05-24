@@ -1,11 +1,39 @@
 import { describe, expect, it } from 'vitest';
-import { isWithinChargeScheduleWindow } from '../src/utils.js';
-import type { ChargeScheduleWindow } from '../src/types.js';
+import { isWithinChargeScheduleWindow, getActiveScheduleWindow } from '../src/utils.js';
+import type { ChargeSchedule, ChargeScheduleWindow, HomeChargerSchedule } from '../src/types.js';
 
-function makeDate(hours: number, minutes: number): Date {
+function makeDate(hours: number, minutes: number, dayOfWeek?: number): Date {
   const d = new Date();
   d.setHours(hours, minutes, 0, 0);
+  if (dayOfWeek !== undefined) {
+    // Shift to the desired day of week without changing time
+    const delta = dayOfWeek - d.getDay();
+    d.setDate(d.getDate() + delta);
+  }
   return d;
+}
+
+const WEEKDAY = 2; // Tuesday
+const SATURDAY = 6;
+const SUNDAY = 0;
+
+const touSchedule: ChargeSchedule = {
+  weekdays: { startTime: '22:00', endTime: '6:00' },
+  weekends: { startTime: '22:00', endTime: '8:00' },
+};
+
+function makeSchedule(overrides: Partial<HomeChargerSchedule> = {}): HomeChargerSchedule {
+  return {
+    hasTouPricing: false,
+    scheduleEnabled: true,
+    hasUtilityInfo: false,
+    basedOnUtility: null,
+    defaultSchedule: {
+      weekdays: { startTime: '0:00', endTime: '23:59' },
+      weekends: { startTime: '0:00', endTime: '23:59' },
+    },
+    ...overrides,
+  };
 }
 
 describe('isWithinChargeScheduleWindow()', () => {
@@ -59,5 +87,79 @@ describe('isWithinChargeScheduleWindow()', () => {
     it('returns false between end and start', () => {
       expect(isWithinChargeScheduleWindow(overnightWindow, makeDate(12, 0))).toBe(false);
     });
+  });
+});
+
+describe('getActiveScheduleWindow()', () => {
+  it('returns null when schedule is disabled', () => {
+    const schedule = makeSchedule({ scheduleEnabled: false, userSchedule: touSchedule });
+    expect(getActiveScheduleWindow(schedule)).toBeNull();
+  });
+
+  it('prefers userSchedule over defaultSchedule', () => {
+    const schedule = makeSchedule({ userSchedule: touSchedule });
+    const window = getActiveScheduleWindow(schedule, makeDate(10, 0, WEEKDAY));
+    expect(window?.startTime).toBe('22:00');
+    expect(window?.endTime).toBe('6:00');
+  });
+
+  it('prefers utilitySchedule over defaultSchedule when no userSchedule', () => {
+    const utilitySchedule: ChargeSchedule = {
+      weekdays: { startTime: '23:00', endTime: '7:00' },
+      weekends: { startTime: '23:00', endTime: '9:00' },
+    };
+    const schedule = makeSchedule({ utilitySchedule });
+    const window = getActiveScheduleWindow(schedule, makeDate(10, 0, WEEKDAY));
+    expect(window?.startTime).toBe('23:00');
+  });
+
+  it('falls back to defaultSchedule when no user or utility schedule', () => {
+    const schedule = makeSchedule();
+    const window = getActiveScheduleWindow(schedule, makeDate(10, 0, WEEKDAY));
+    expect(window?.startTime).toBe('0:00');
+    expect(window?.endTime).toBe('23:59');
+  });
+
+  it('returns weekday window on a weekday', () => {
+    const schedule = makeSchedule({ userSchedule: touSchedule });
+    const window = getActiveScheduleWindow(schedule, makeDate(10, 0, WEEKDAY));
+    expect(window?.endTime).toBe('6:00');
+  });
+
+  it('returns weekend window on Saturday', () => {
+    const schedule = makeSchedule({ userSchedule: touSchedule });
+    const window = getActiveScheduleWindow(schedule, makeDate(10, 0, SATURDAY));
+    expect(window?.endTime).toBe('8:00');
+  });
+
+  it('returns weekend window on Sunday', () => {
+    const schedule = makeSchedule({ userSchedule: touSchedule });
+    const window = getActiveScheduleWindow(schedule, makeDate(10, 0, SUNDAY));
+    expect(window?.endTime).toBe('8:00');
+  });
+
+  it('composes with isWithinChargeScheduleWindow — TOU user in window', () => {
+    const schedule = makeSchedule({ userSchedule: touSchedule });
+    const window = getActiveScheduleWindow(schedule, makeDate(23, 0, WEEKDAY));
+    expect(window).not.toBeNull();
+    expect(isWithinChargeScheduleWindow(window!, makeDate(23, 0, WEEKDAY))).toBe(true);
+  });
+
+  it('composes with isWithinChargeScheduleWindow — TOU user outside window (midday)', () => {
+    const schedule = makeSchedule({ userSchedule: touSchedule });
+    const window = getActiveScheduleWindow(schedule, makeDate(13, 10, WEEKDAY));
+    expect(window).not.toBeNull();
+    expect(isWithinChargeScheduleWindow(window!, makeDate(13, 10, WEEKDAY))).toBe(false);
+  });
+
+  it('solar-only user: null window signals custom logic should run', () => {
+    // User has no ChargePoint schedule — getActiveScheduleWindow returns null
+    const schedule = makeSchedule({ scheduleEnabled: false });
+    const window = getActiveScheduleWindow(schedule);
+    expect(window).toBeNull();
+
+    // Caller applies their own solar window
+    const solarWindow: ChargeScheduleWindow = { startTime: '7:00', endTime: '19:00' };
+    expect(isWithinChargeScheduleWindow(solarWindow, makeDate(13, 10))).toBe(true);
   });
 });

@@ -1,4 +1,4 @@
-import type { ChargeScheduleWindow, TimeString } from './types.js';
+import type { ChargeSchedule, ChargeScheduleWindow, HomeChargerSchedule, TimeString } from './types.js';
 
 function parseTimeString(t: TimeString): [number, number] {
   const parts = (t as string).split(':');
@@ -24,4 +24,38 @@ export function isWithinChargeScheduleWindow(window: ChargeScheduleWindow, date:
   }
   // Midnight-crossing window
   return currentMinutes >= startMinutes || currentMinutes < endMinutes;
+}
+
+/**
+ * Returns the ChargePoint schedule window that is currently active, or null if the
+ * ChargePoint schedule is disabled.
+ *
+ * Priority when multiple schedules are present: userSchedule > utilitySchedule > defaultSchedule.
+ * Automatically picks the weekday or weekend window based on `date`.
+ *
+ * Combine with isWithinChargeScheduleWindow to check whether charging should run now:
+ *
+ *   const window = getActiveScheduleWindow(schedule);
+ *   if (window) {
+ *     // ChargePoint schedule is on — check if we're in it
+ *     const inWindow = isWithinChargeScheduleWindow(window);
+ *   } else {
+ *     // Schedule is off — apply your own logic (solar window, time-of-day, etc.)
+ *   }
+ */
+export function getActiveScheduleWindow(
+  schedule: HomeChargerSchedule,
+  date: Date = new Date(),
+): ChargeScheduleWindow | null {
+  if (!schedule.scheduleEnabled) return null;
+
+  // Prefer the most specific schedule the user has configured.
+  const active: ChargeSchedule =
+    schedule.userSchedule ?? schedule.utilitySchedule ?? schedule.defaultSchedule;
+
+  // getDay(): 0 = Sunday, 6 = Saturday
+  const day = date.getDay();
+  const isWeekend = day === 0 || day === 6;
+
+  return isWeekend ? active.weekends : active.weekdays;
 }
