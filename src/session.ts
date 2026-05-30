@@ -1,5 +1,5 @@
 import type { ChargePoint } from './client.js';
-import { ChargerBusyError, CommunicationError, StartVerificationTimeoutError } from './exceptions.js';
+import { ChargerBusyError, CommunicationError, NoActiveSessionError, StartVerificationTimeoutError } from './exceptions.js';
 import type { ChargingSessionUpdate, ChargingStatus, PowerUtility, StartSessionOptions, VehicleInfo } from './types.js';
 
 const sleep = (ms: number): Promise<void> =>
@@ -42,7 +42,10 @@ async function sendCommand(
       throw new ChargerBusyError(msg, cmdBody);
     }
     if (action === 'stop' && response.status === 422 && (cmdBody as RawObj)?.errorId === 165) {
-      return null; // Session already stopped — goal achieved.
+      const msg = typeof (cmdBody as RawObj)?.errorMessage === 'string'
+        ? (cmdBody as RawObj).errorMessage as string
+        : undefined;
+      throw new NoActiveSessionError(msg, cmdBody);
     }
     throw new CommunicationError(
       response.status,
@@ -93,7 +96,12 @@ async function sendCommand(
     }
 
     if (action === 'stop' && ackResponse.status === 422 && (errorBody as RawObj)?.errorId === 165) {
-      return null; // Session already stopped — goal achieved.
+      throw new NoActiveSessionError(
+        typeof (errorBody as RawObj)?.errorMessage === 'string'
+          ? (errorBody as RawObj).errorMessage as string
+          : undefined,
+        errorBody,
+      );
     }
 
     if (attempt < 20) {

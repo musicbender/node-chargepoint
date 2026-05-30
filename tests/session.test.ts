@@ -3,7 +3,7 @@ import { http, HttpResponse } from 'msw';
 import { server } from './setup.js';
 import { ChargePoint } from '../src/client.js';
 import { ChargingSession } from '../src/session.js';
-import { CommunicationError, StartVerificationTimeoutError } from '../src/exceptions.js';
+import { CommunicationError, NoActiveSessionError, StartVerificationTimeoutError } from '../src/exceptions.js';
 import { TEST_TOKEN, TEST_SESSION_ID, TEST_DEVICE_ID, TEST_USER_ID } from './handlers.js';
 
 async function authenticatedClient(): Promise<ChargePoint> {
@@ -75,7 +75,7 @@ describe('ChargingSession.stop()', () => {
     await expect(session.stop()).resolves.not.toThrow();
   });
 
-  it('succeeds silently when initial stop command returns errorId 165 (session already stopped)', async () => {
+  it('throws NoActiveSessionError when initial stop command returns errorId 165', async () => {
     server.use(
       http.post('https://account.chargepoint.com/v1/driver/station/stopSession', () =>
         HttpResponse.json(
@@ -90,10 +90,13 @@ describe('ChargingSession.stop()', () => {
     session._setClient(client);
     await session.refresh();
 
-    await expect(session.stop()).resolves.not.toThrow();
+    const error = await session.stop().catch((e) => e);
+    expect(error).toBeInstanceOf(NoActiveSessionError);
+    expect(error.message).toBe('unable to find charging session');
+    expect(error.statusCode).toBe(422);
   });
 
-  it('succeeds silently when stop ack returns errorId 165 (session already stopped)', async () => {
+  it('throws NoActiveSessionError when stop ack returns errorId 165', async () => {
     server.use(
       http.post('https://account.chargepoint.com/v1/driver/station/session/ack', () =>
         HttpResponse.json(
@@ -108,7 +111,8 @@ describe('ChargingSession.stop()', () => {
     session._setClient(client);
     await session.refresh();
 
-    await expect(session.stop()).resolves.not.toThrow();
+    const error = await session.stop().catch((e) => e);
+    expect(error).toBeInstanceOf(NoActiveSessionError);
   });
 
   it('throws CommunicationError after 20 failed ack attempts', async () => {
