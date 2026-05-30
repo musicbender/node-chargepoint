@@ -67,10 +67,3 @@ export class StartVerificationTimeoutError extends APIError {
   }
 }
 
-export class NoActiveSessionError extends CommunicationError {
-  constructor(message = 'No active charging session found.', body?: unknown) {
-    super(422, message, body);
-    this.name = 'NoActiveSessionError';
-    Object.setPrototypeOf(this, new.target.prototype);
-  }
-}
