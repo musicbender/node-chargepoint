@@ -142,6 +142,31 @@ describe('getUserChargingStatus()', () => {
     const status = await client.getUserChargingStatus();
     expect(status).toBeNull();
   });
+
+  it('POSTs the mfhs user_status body (matching upstream python-chargepoint)', async () => {
+    let capturedBody: Record<string, unknown> | undefined;
+    server.use(
+      http.post('https://mc.chargepoint.com/map-prod/v2', async ({ request }) => {
+        capturedBody = (await request.json()) as Record<string, unknown>;
+        return HttpResponse.json({
+          user_status: {
+            charging_status: {
+              session_id: 1, start_time: 1609459200000, current_charging: 'CHARGING', stations: [],
+            },
+          },
+        });
+      }),
+    );
+
+    const client = await authenticatedClient();
+    await client.getUserChargingStatus();
+
+    const userStatus = capturedBody?.user_status as Record<string, unknown> | undefined;
+    expect(userStatus).toBeDefined();
+    expect(userStatus?.mfhs).toEqual({});
+    // The old timestamp-based body is what hid auto-started home sessions.
+    expect(userStatus?.timestamp).toBeUndefined();
+  });
 });
 
 describe('getHomeChargers()', () => {
@@ -405,7 +430,26 @@ describe('_request() error handling', () => {
 });
 
 describe('ChargePoint.stopChargingSession()', () => {
-  it('throws NoActiveSessionError when ChargePoint reports errorId 165 (session already stopped)', async () => {
+  it('resolves the active session and stops with the real sessionId + outletNumber', async () => {
+    let stopBody: Record<string, unknown> | undefined;
+    server.use(
+      http.post('https://account.chargepoint.com/v1/driver/station/stopSession', async ({ request }) => {
+        stopBody = (await request.json()) as Record<string, unknown>;
+        return HttpResponse.json({ ackId: 'ack-12345' });
+      }),
+    );
+
+    const client = await authenticatedClient();
+    await client.stopChargingSession(TEST_DEVICE_ID);
+
+    // Default user-status fixture resolves to session 1 (device 1, outlet 1) —
+    // never the old bogus sessionId:0/portNumber:1 default.
+    expect(stopBody?.sessionId).toBe(1);
+    expect(stopBody?.deviceId).toBe(1);
+    expect(stopBody?.portNumber).toBe(1);
+  });
+
+  it('surfaces NoActiveSessionError when the resolved-session stop reports errorId 165', async () => {
     server.use(
       http.post('https://account.chargepoint.com/v1/driver/station/stopSession', () =>
         HttpResponse.json(
