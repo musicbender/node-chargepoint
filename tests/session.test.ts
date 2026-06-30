@@ -162,14 +162,60 @@ describe('ChargingSession.stopByDevice()', () => {
     );
 
     const client = await authenticatedClient();
-    await ChargingSession.stopByDevice(TEST_DEVICE_ID, client);
+    // Default user-status fixture resolves to session 1, which lives on device 1.
+    await ChargingSession.stopByDevice(1, client);
 
-    // Default user-status fixture resolves to session 1 (device 1, outlet 1).
     expect(stopBody?.sessionId).toBe(TEST_SESSION_ID);
     expect(stopBody?.deviceId).toBe(1);
     expect(stopBody?.portNumber).toBe(1);
     // Regression guard: must never send the bogus sessionId:0 the old default produced.
     expect(stopBody?.sessionId).not.toBe(0);
+  });
+
+  it('ignores a driver-plane session on a different device and uses the device-plane session', async () => {
+    let stopBody: Record<string, unknown> | undefined;
+    server.use(
+      // Driver plane reports an active session (1) that lives on device 1 — NOT the
+      // device we are asking to stop (TEST_DEVICE_ID). The guard must reject it.
+      http.post('https://mc.chargepoint.com/map-prod/v2', async ({ request }) => {
+        const body = (await request.json()) as Record<string, unknown>;
+        if ('user_status' in body) {
+          return HttpResponse.json({
+            user_status: {
+              charging_status: {
+                session_id: TEST_SESSION_ID, start_time: 1609459200000,
+                current_charging: 'CHARGING', stations: [],
+              },
+            },
+          });
+        }
+        return new HttpResponse(null, { status: 400 });
+      }),
+      // Device plane for the requested device surfaces its own session id (99).
+      http.get(
+        `https://hcpoprodhcm.chargepoint.com/api/v1/configuration/users/${TEST_USER_ID}/chargers/${TEST_DEVICE_ID}/status`,
+        () => HttpResponse.json({
+          brand: 'ChargePoint', model: 'CPH25', macAddress: 'AA:BB:CC:DD:EE:FF',
+          chargingStatus: 'CHARGING', sessionId: TEST_SESSION_ID_99,
+          isPluggedIn: true, isConnected: true, isReminderEnabled: false,
+          plugInReminderTime: '22:00', hasUtilityInfo: false, isDuringScheduledTime: false,
+          chargeAmperageSettings: { chargeLimit: 32, inProgress: false, possibleChargeLimit: [16, 24, 32] },
+        }),
+      ),
+      http.post('https://account.chargepoint.com/v1/driver/station/stopSession', async ({ request }) => {
+        stopBody = (await request.json()) as Record<string, unknown>;
+        return HttpResponse.json({ ackId: 'ack-12345' });
+      }),
+    );
+
+    const client = await authenticatedClient();
+    await ChargingSession.stopByDevice(TEST_DEVICE_ID, client);
+
+    // Must stop this device's own session (99, device 12345), never the unrelated
+    // driver-plane session (1, device 1).
+    expect(stopBody?.sessionId).toBe(TEST_SESSION_ID_99);
+    expect(stopBody?.sessionId).not.toBe(TEST_SESSION_ID);
+    expect(stopBody?.deviceId).toBe(12345);
   });
 
   it('falls back to the device plane (home-charger status) when the driver plane is empty', async () => {

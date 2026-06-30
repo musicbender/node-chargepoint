@@ -278,7 +278,14 @@ export class ChargingSession {
   ): Promise<ChargingSession | null> {
     const userStatus = await client.getUserChargingStatus();
     if (userStatus && userStatus.sessionId > 0) {
-      return client.getChargingSession(userStatus.sessionId);
+      const session = await client.getChargingSession(userStatus.sessionId);
+      // getUserChargingStatus reports the driver's active session, which may live
+      // on a *different* device than the one we were asked to stop (e.g. a household
+      // with two chargers). Only accept it when it belongs to this device, otherwise
+      // we could stop the wrong charger. Fall through to the device plane on mismatch.
+      if (session.deviceId === deviceId) {
+        return session;
+      }
     }
 
     try {

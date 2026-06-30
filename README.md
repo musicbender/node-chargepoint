@@ -303,7 +303,7 @@ await session.stop();
 
 Under the hood it resolves the active session before issuing the stop, because ChargePoint rejects a stop that does not carry the real session id (HTTP 422 `errorId` 165). Resolution order:
 
-1. **Driver plane** — `getUserChargingStatus()` (public stations and driver-owned sessions).
+1. **Driver plane** — `getUserChargingStatus()` (public stations and driver-owned sessions). The resolved session is only used when it actually belongs to `deviceId`, so a session on a *different* charger (e.g. a second charger in the same account) is never stopped by mistake.
 2. **Device plane fallback** — the session id surfaced by `getHomeChargerStatus`, which covers home sessions the EV auto-started on plug-in (invisible to the driver plane).
 
 The resolved session's real `sessionId` and `outletNumber` are then sent to the stop endpoint. If no active session can be resolved on either plane, an `UnresolvedSessionError` (carrying the `deviceId`) is thrown — distinct from the `NoActiveSessionError` the API returns for a stop targeting a non-existent session. If the charger is currently busy (e.g. mid-handshake), a `ChargerBusyError` is thrown — see [Error Handling](docs/error-handling.md).

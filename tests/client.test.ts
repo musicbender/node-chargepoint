@@ -440,10 +440,10 @@ describe('ChargePoint.stopChargingSession()', () => {
     );
 
     const client = await authenticatedClient();
-    await client.stopChargingSession(TEST_DEVICE_ID);
+    // Default user-status fixture resolves to session 1, which lives on device 1.
+    await client.stopChargingSession(1);
 
-    // Default user-status fixture resolves to session 1 (device 1, outlet 1) —
-    // never the old bogus sessionId:0/portNumber:1 default.
+    // Sends the real resolved ids — never the old bogus sessionId:0/portNumber:1 default.
     expect(stopBody?.sessionId).toBe(1);
     expect(stopBody?.deviceId).toBe(1);
     expect(stopBody?.portNumber).toBe(1);
@@ -460,7 +460,8 @@ describe('ChargePoint.stopChargingSession()', () => {
     );
 
     const client = await authenticatedClient();
-    const error = await client.stopChargingSession(TEST_DEVICE_ID).catch((e) => e);
+    // Resolves session 1 on device 1, then the stop itself reports 165.
+    const error = await client.stopChargingSession(1).catch((e) => e);
 
     expect(error).toBeInstanceOf(NoActiveSessionError);
     expect(error.message).toBe('unable to find charging session');
