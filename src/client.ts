@@ -245,13 +245,8 @@ export class ChargePoint {
 
   async getUserChargingStatus(): Promise<UserChargingStatus | null> {
     const url = `${this.globalConfig.endpoints.mapcacheEndpoint}/v2`;
-    // Body mirrors upstream python-chargepoint (`{ user_status: { mfhs: {} } }`).
-    // The previous `{ timestamp }` body omitted the mfhs (multi-family home
-    // station) scope, so home/auto-started sessions were missing from the
-    // response — the root cause of auto-started home sessions appearing
-    // "invisible" to getUserChargingStatus().
     const response = await this._request('POST', url, {
-      body: JSON.stringify({ user_status: { mfhs: {} } }),
+      body: JSON.stringify({ user_status: { timestamp: Date.now() } }),
       headers: { 'Content-Type': 'application/json' },
     });
 

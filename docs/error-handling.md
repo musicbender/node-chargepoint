@@ -74,3 +74,28 @@ try {
   }
 }
 ```
+
+### Known limitation: some home chargers never surface a session id over REST
+
+For an EV session that auto-starts on plug-in (no app/RFID interaction), both resolution
+paths can come back empty depending on the charger model:
+
+- `getUserChargingStatus()` — the driver plane — was verified live to return an empty
+  `user_status: {}` for an actively-charging home session, regardless of request body.
+- `getHomeChargerStatus()` — the device plane — was verified live to return no
+  `sessionId`/`energyKwh`/`powerKw`/`sessionStartTime` fields at all for a
+  `CPH50`-family charger, despite `chargingStatus: "CHARGING"`.
+
+ChargePoint's own service discovery config advertises a model-specific WebSocket channel
+for these chargers (`kestrel_websocket_endpoint`, scoped to the `CPH50` family) separate
+from the REST `hcpo-charger-management` API this library uses. That suggests live session
+state and control for these models may be WebSocket-native rather than REST-polled — which
+this library does not implement.
+
+**Net effect:** for a charger in this situation, `stopChargingSession(deviceId)` /
+`ChargingSession.stopByDevice()` cannot resolve a session and will throw
+`UnresolvedSessionError` rather than silently failing or sending a bogus stop command. This
+is considered correct, honest behavior — not a bug — until WebSocket support is added (see
+the library's issue tracker for status). Sessions started via this library's own
+`startChargingSession()` are unaffected, since the session id is captured directly from the
+start acknowledgement.

@@ -142,31 +142,6 @@ describe('getUserChargingStatus()', () => {
     const status = await client.getUserChargingStatus();
     expect(status).toBeNull();
   });
-
-  it('POSTs the mfhs user_status body (matching upstream python-chargepoint)', async () => {
-    let capturedBody: Record<string, unknown> | undefined;
-    server.use(
-      http.post('https://mc.chargepoint.com/map-prod/v2', async ({ request }) => {
-        capturedBody = (await request.json()) as Record<string, unknown>;
-        return HttpResponse.json({
-          user_status: {
-            charging_status: {
-              session_id: 1, start_time: 1609459200000, current_charging: 'CHARGING', stations: [],
-            },
-          },
-        });
-      }),
-    );
-
-    const client = await authenticatedClient();
-    await client.getUserChargingStatus();
-
-    const userStatus = capturedBody?.user_status as Record<string, unknown> | undefined;
-    expect(userStatus).toBeDefined();
-    expect(userStatus?.mfhs).toEqual({});
-    // The old timestamp-based body is what hid auto-started home sessions.
-    expect(userStatus?.timestamp).toBeUndefined();
-  });
 });
 
 describe('getHomeChargers()', () => {
