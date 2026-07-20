@@ -1,6 +1,6 @@
 import type { ChargePoint } from './client.js';
-import { ChargerBusyError, CommunicationError, NoActiveSessionError, StartVerificationTimeoutError } from './exceptions.js';
-import type { ChargingSessionUpdate, ChargingStatus, PowerUtility, StartSessionOptions, VehicleInfo } from './types.js';
+import { ChargerBusyError, CommunicationError, NoActiveSessionError, StartVerificationTimeoutError, UnresolvedSessionError, VehicleNotReadyError } from './exceptions.js';
+import type { ChargePointCommandErrorBody, ChargingSessionUpdate, ChargingStatus, PowerUtility, StartSessionOptions, VehicleInfo } from './types.js';
 
 const sleep = (ms: number): Promise<void> =>
   new Promise((resolve) => setTimeout(resolve, ms));
@@ -35,21 +35,22 @@ async function sendCommand(
     } catch {
       cmdBody = await response.text();
     }
+    const cmdErrorMessage = typeof (cmdBody as RawObj)?.errorMessage === 'string'
+      ? (cmdBody as RawObj).errorMessage as string
+      : undefined;
     if (response.status === 422 && (cmdBody as RawObj)?.errorId === 89) {
-      const msg = typeof (cmdBody as RawObj)?.errorMessage === 'string'
-        ? (cmdBody as RawObj).errorMessage as string
-        : undefined;
-      throw new ChargerBusyError(msg, cmdBody);
+      throw new ChargerBusyError(cmdErrorMessage, cmdBody as ChargePointCommandErrorBody);
     }
     if (action === 'stop' && response.status === 422 && (cmdBody as RawObj)?.errorId === 165) {
-      const msg = typeof (cmdBody as RawObj)?.errorMessage === 'string'
-        ? (cmdBody as RawObj).errorMessage as string
-        : undefined;
-      throw new NoActiveSessionError(msg, cmdBody);
+      throw new NoActiveSessionError(cmdErrorMessage, cmdBody);
+    }
+    if (response.status === 422 && (cmdBody as RawObj)?.errorId === 25) {
+      throw new VehicleNotReadyError(cmdErrorMessage, cmdBody as ChargePointCommandErrorBody);
     }
     throw new CommunicationError(
       response.status,
-      `Failed to ${action} ChargePoint session: ${typeof cmdBody === 'string' ? cmdBody : JSON.stringify(cmdBody)}`,
+      cmdErrorMessage ?? `Failed to ${action} ChargePoint session.`,
+      cmdBody,
     );
   }
 
@@ -91,7 +92,7 @@ async function sendCommand(
         typeof (errorBody as RawObj)?.errorMessage === 'string'
           ? (errorBody as RawObj).errorMessage as string
           : undefined,
-        errorBody,
+        errorBody as ChargePointCommandErrorBody,
       );
     }
 
@@ -101,6 +102,15 @@ async function sendCommand(
           ? (errorBody as RawObj).errorMessage as string
           : undefined,
         errorBody,
+      );
+    }
+
+    if (ackResponse.status === 422 && (errorBody as RawObj)?.errorId === 25) {
+      throw new VehicleNotReadyError(
+        typeof (errorBody as RawObj)?.errorMessage === 'string'
+          ? (errorBody as RawObj).errorMessage as string
+          : undefined,
+        errorBody as ChargePointCommandErrorBody,
       );
     }
 
@@ -245,7 +255,7 @@ export class ChargingSession {
     const status = json.charging_status as RawObj | undefined;
 
     if (!status || 'error_message' in status || 'error' in status) {
-      throw new CommunicationError(response.status, 'Failed to get charging session data.');
+      throw new CommunicationError(response.status, 'Failed to get charging session data.', status);
     }
 
     this._apply(status);
@@ -262,8 +272,56 @@ export class ChargingSession {
     );
   }
 
+  /**
+   * Resolve the active session for a device across both planes, without requiring
+   * a session handle. Returns `null` when no session id can be found.
+   *
+   * Resolution order:
+   * 1. Driver plane (`getUserChargingStatus`) — works for public stations and
+   *    sessions started/owned by the authenticated driver.
+   * 2. Device plane (`getHomeChargerStatus`) — home chargers' auto-started sessions
+   *    are invisible to the driver plane but surface a session id here.
+   */
+  private static async resolveActiveByDevice(
+    deviceId: number,
+    client: ChargePoint,
+  ): Promise<ChargingSession | null> {
+    const userStatus = await client.getUserChargingStatus();
+    if (userStatus && userStatus.sessionId > 0) {
+      const session = await client.getChargingSession(userStatus.sessionId);
+      // getUserChargingStatus reports the driver's active session, which may live
+      // on a *different* device than the one we were asked to stop (e.g. a household
+      // with two chargers). Only accept it when it belongs to this device, otherwise
+      // we could stop the wrong charger. Fall through to the device plane on mismatch.
+      if (session.deviceId === deviceId) {
+        return session;
+      }
+    }
+
+    try {
+      const chargerStatus = await client.getHomeChargerStatus(deviceId);
+      if (chargerStatus.sessionId !== undefined && chargerStatus.sessionId > 0) {
+        return client.getChargingSession(chargerStatus.sessionId);
+      }
+    } catch {
+      // Device-plane lookup unavailable (e.g. deviceId is not a home charger
+      // owned by this account). Fall through to the unresolved-session error.
+    }
+
+    return null;
+  }
+
   static async stopByDevice(deviceId: number, client: ChargePoint): Promise<void> {
-    await sendCommand(client, 'stop', deviceId);
+    // A device-level stop must carry the real sessionId + outletNumber. ChargePoint
+    // rejects a stop for sessionId 0 with HTTP 422 errorId 165 (NoActiveSessionError),
+    // so the previous default of portNumber=1/sessionId=0 could never stop a real
+    // session. Resolve the active session first, then issue the stop with its real
+    // identifiers (mirrors python-chargepoint's ChargingSession.stop()).
+    const session = await ChargingSession.resolveActiveByDevice(deviceId, client);
+    if (!session) {
+      throw new UnresolvedSessionError(deviceId);
+    }
+    await session.stop();
   }
 
   static async start(

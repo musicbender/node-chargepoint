@@ -1,3 +1,5 @@
+import type { ChargePointCommandErrorBody } from './types.js';
+
 export class APIError extends Error {
   constructor(message: string) {
     super(message);
@@ -35,9 +37,17 @@ export class InvalidSession extends CommunicationError {
 }
 
 export class ChargerBusyError extends CommunicationError {
-  constructor(message = 'Charger is busy.', body?: unknown) {
+  constructor(message = 'Charger is busy.', body?: ChargePointCommandErrorBody) {
     super(422, message, body);
     this.name = 'ChargerBusyError';
+    Object.setPrototypeOf(this, new.target.prototype);
+  }
+}
+
+export class VehicleNotReadyError extends CommunicationError {
+  constructor(message = 'Vehicle is not ready to charge — it may be at its charge limit. Unplug and reconnect, or try again shortly.', body?: ChargePointCommandErrorBody) {
+    super(422, message, body);
+    this.name = 'VehicleNotReadyError';
     Object.setPrototypeOf(this, new.target.prototype);
   }
 }
@@ -57,6 +67,17 @@ export class NoActiveSessionError extends CommunicationError {
   constructor(message = 'No active charging session found.', body?: unknown) {
     super(422, message, body);
     this.name = 'NoActiveSessionError';
+    Object.setPrototypeOf(this, new.target.prototype);
+  }
+}
+
+export class UnresolvedSessionError extends APIError {
+  constructor(
+    public readonly deviceId: number,
+    message = `Could not resolve an active charging session for device ${deviceId}. The driver plane (getUserChargingStatus) returned no session and the device plane (getHomeChargerStatus) did not surface a session id. The device may not be charging, or the session may have been started in a way that is not visible to this account.`,
+  ) {
+    super(message);
+    this.name = 'UnresolvedSessionError';
     Object.setPrototypeOf(this, new.target.prototype);
   }
 }
