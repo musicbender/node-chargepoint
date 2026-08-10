@@ -1,0 +1,73 @@
+{
+  "kind": "object",
+  "fields": {
+    "vehicles": {
+      "node": {
+        "kind": "array",
+        "items": {
+          "kind": "object",
+          "fields": {
+            "chargingSpeed": {
+              "node": {
+                "kind": "number"
+              },
+              "optional": false,
+              "missingStreak": 0
+            },
+            "color": {
+              "node": {
+                "kind": "string"
+              },
+              "optional": false,
+              "missingStreak": 0
+            },
+            "dcChargingSpeed": {
+              "node": {
+                "kind": "number"
+              },
+              "optional": false,
+              "missingStreak": 0
+            },
+            "imageUrl": {
+              "node": {
+                "kind": "string"
+              },
+              "optional": false,
+              "missingStreak": 0
+            },
+            "make": {
+              "node": {
+                "kind": "string"
+              },
+              "optional": false,
+              "missingStreak": 0
+            },
+            "model": {
+              "node": {
+                "kind": "string"
+              },
+              "optional": false,
+              "missingStreak": 0
+            },
+            "primaryVehicle": {
+              "node": {
+                "kind": "boolean"
+              },
+              "optional": false,
+              "missingStreak": 0
+            },
+            "year": {
+              "node": {
+                "kind": "number"
+              },
+              "optional": false,
+              "missingStreak": 0
+            }
+          }
+        }
+      },
+      "optional": false,
+      "missingStreak": 0
+    }
+  }
+}

@@ -1,0 +1,363 @@
+{
+  "kind": "object",
+  "fields": {
+    "currency": {
+      "node": {
+        "kind": "object",
+        "fields": {
+          "cardCost": {
+            "node": {
+              "kind": "number"
+            },
+            "optional": false,
+            "missingStreak": 0
+          },
+          "code": {
+            "node": {
+              "kind": "string"
+            },
+            "optional": false,
+            "missingStreak": 0
+          },
+          "initialDeposit": {
+            "node": {
+              "kind": "number"
+            },
+            "optional": false,
+            "missingStreak": 0
+          },
+          "maxDecimalPlaces": {
+            "node": {
+              "kind": "number"
+            },
+            "optional": false,
+            "missingStreak": 0
+          },
+          "name": {
+            "node": {
+              "kind": "string"
+            },
+            "optional": false,
+            "missingStreak": 0
+          },
+          "replenishmentThreshold": {
+            "node": {
+              "kind": "number"
+            },
+            "optional": false,
+            "missingStreak": 0
+          },
+          "symbol": {
+            "node": {
+              "kind": "string"
+            },
+            "optional": false,
+            "missingStreak": 0
+          }
+        }
+      },
+      "optional": false,
+      "missingStreak": 0
+    },
+    "defaultCountry": {
+      "node": {
+        "kind": "object",
+        "fields": {
+          "callingCode": {
+            "node": {
+              "kind": "number"
+            },
+            "optional": false,
+            "missingStreak": 0
+          },
+          "code": {
+            "node": {
+              "kind": "string"
+            },
+            "optional": false,
+            "missingStreak": 0
+          },
+          "id": {
+            "node": {
+              "kind": "number"
+            },
+            "optional": false,
+            "missingStreak": 0
+          },
+          "name": {
+            "node": {
+              "kind": "string"
+            },
+            "optional": false,
+            "missingStreak": 0
+          },
+          "phoneFormat": {
+            "node": {
+              "kind": "string"
+            },
+            "optional": false,
+            "missingStreak": 0
+          },
+          "zoomBounds": {
+            "node": {
+              "kind": "object",
+              "fields": {
+                "neLat": {
+                  "node": {
+                    "kind": "number"
+                  },
+                  "optional": false,
+                  "missingStreak": 0
+                },
+                "neLon": {
+                  "node": {
+                    "kind": "number"
+                  },
+                  "optional": false,
+                  "missingStreak": 0
+                },
+                "swLat": {
+                  "node": {
+                    "kind": "number"
+                  },
+                  "optional": false,
+                  "missingStreak": 0
+                },
+                "swLon": {
+                  "node": {
+                    "kind": "number"
+                  },
+                  "optional": false,
+                  "missingStreak": 0
+                }
+              }
+            },
+            "optional": false,
+            "missingStreak": 0
+          }
+        }
+      },
+      "optional": false,
+      "missingStreak": 0
+    },
+    "endPoints": {
+      "node": {
+        "kind": "object",
+        "fields": {
+          "accountsEndpoint": {
+            "node": {
+              "kind": "object",
+              "fields": {
+                "value": {
+                  "node": {
+                    "kind": "string"
+                  },
+                  "optional": false,
+                  "missingStreak": 0
+                }
+              }
+            },
+            "optional": false,
+            "missingStreak": 0
+          },
+          "hcpoHcmEndpoint": {
+            "node": {
+              "kind": "object",
+              "fields": {
+                "value": {
+                  "node": {
+                    "kind": "string"
+                  },
+                  "optional": false,
+                  "missingStreak": 0
+                }
+              }
+            },
+            "optional": false,
+            "missingStreak": 0
+          },
+          "internalApiGatewayEndpoint": {
+            "node": {
+              "kind": "object",
+              "fields": {
+                "value": {
+                  "node": {
+                    "kind": "string"
+                  },
+                  "optional": false,
+                  "missingStreak": 0
+                }
+              }
+            },
+            "optional": false,
+            "missingStreak": 0
+          },
+          "mapcacheEndpoint": {
+            "node": {
+              "kind": "object",
+              "fields": {
+                "value": {
+                  "node": {
+                    "kind": "string"
+                  },
+                  "optional": false,
+                  "missingStreak": 0
+                }
+              }
+            },
+            "optional": false,
+            "missingStreak": 0
+          },
+          "pandaWebsocketEndpoint": {
+            "node": {
+              "kind": "object",
+              "fields": {
+                "value": {
+                  "node": {
+                    "kind": "string"
+                  },
+                  "optional": false,
+                  "missingStreak": 0
+                }
+              }
+            },
+            "optional": false,
+            "missingStreak": 0
+          },
+          "paymentJavaEndpoint": {
+            "node": {
+              "kind": "object",
+              "fields": {
+                "value": {
+                  "node": {
+                    "kind": "string"
+                  },
+                  "optional": false,
+                  "missingStreak": 0
+                }
+              }
+            },
+            "optional": false,
+            "missingStreak": 0
+          },
+          "paymentPhpEndpoint": {
+            "node": {
+              "kind": "object",
+              "fields": {
+                "value": {
+                  "node": {
+                    "kind": "string"
+                  },
+                  "optional": false,
+                  "missingStreak": 0
+                }
+              }
+            },
+            "optional": false,
+            "missingStreak": 0
+          },
+          "portalDomainEndpoint": {
+            "node": {
+              "kind": "object",
+              "fields": {
+                "value": {
+                  "node": {
+                    "kind": "string"
+                  },
+                  "optional": false,
+                  "missingStreak": 0
+                }
+              }
+            },
+            "optional": false,
+            "missingStreak": 0
+          },
+          "portalSubdomain": {
+            "node": {
+              "kind": "string"
+            },
+            "optional": false,
+            "missingStreak": 0
+          },
+          "ssoEndpoint": {
+            "node": {
+              "kind": "object",
+              "fields": {
+                "value": {
+                  "node": {
+                    "kind": "string"
+                  },
+                  "optional": false,
+                  "missingStreak": 0
+                }
+              }
+            },
+            "optional": false,
+            "missingStreak": 0
+          },
+          "webservicesEndpoint": {
+            "node": {
+              "kind": "object",
+              "fields": {
+                "value": {
+                  "node": {
+                    "kind": "string"
+                  },
+                  "optional": false,
+                  "missingStreak": 0
+                }
+              }
+            },
+            "optional": false,
+            "missingStreak": 0
+          },
+          "websocketEndpoint": {
+            "node": {
+              "kind": "object",
+              "fields": {
+                "value": {
+                  "node": {
+                    "kind": "string"
+                  },
+                  "optional": false,
+                  "missingStreak": 0
+                }
+              }
+            },
+            "optional": false,
+            "missingStreak": 0
+          }
+        }
+      },
+      "optional": false,
+      "missingStreak": 0
+    },
+    "region": {
+      "node": {
+        "kind": "string"
+      },
+      "optional": false,
+      "missingStreak": 0
+    },
+    "supportedCountries": {
+      "node": {
+        "kind": "array",
+        "items": {
+          "kind": "unknown"
+        }
+      },
+      "optional": false,
+      "missingStreak": 0
+    },
+    "supportedCurrencies": {
+      "node": {
+        "kind": "array",
+        "items": {
+          "kind": "unknown"
+        }
+      },
+      "optional": false,
+      "missingStreak": 0
+    }
+  }
+}

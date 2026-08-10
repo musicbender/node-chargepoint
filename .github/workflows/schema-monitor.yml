@@ -1,0 +1,187 @@
+name: ChargePoint API Drift Monitor
+
+# Calls the live ChargePoint API from the self-hosted runner (needs a residential IP — a
+# datacenter IP gets Datadome-challenged, see tests/e2e/auth.ts) and compares response shapes
+# against the committed baseline in api-schema/. Never touches src/types.ts itself — that's
+# scripts/schema-monitor's job when the diff is clean, or a human's when it isn't (see the
+# additive-only policy in AGENTS.md).
+
+on:
+  schedule:
+    - cron: '17 9 * * *' # once a day; avoids the top-of-hour rush
+  workflow_dispatch: {} # manual re-run, e.g. right after a ChargePoint app update
+
+permissions:
+  contents: write
+  issues: write
+  pull-requests: write
+
+concurrency:
+  group: schema-monitor
+  cancel-in-progress: false
+
+jobs:
+  check:
+    name: Capture and diff
+    # Must run on your Pi's residential IP — the ChargePoint API Datadome-challenges datacenter
+    # IPs. Narrow this to your specific runner label if you register more than one self-hosted
+    # runner (e.g. `[self-hosted, chargepoint-pi]`).
+    runs-on: self-hosted
+    outputs:
+      status: ${{ steps.run.outputs.status }}
+      needs-review: ${{ steps.run.outputs.needs-review }}
+      label: ${{ steps.run.outputs.label }}
+      branch: ${{ steps.push.outputs.branch }}
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: pnpm/action-setup@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version-file: package.json
+          cache: pnpm
+
+      - run: pnpm install --frozen-lockfile
+
+      - name: Capture live API shapes and reconcile against the baseline
+        id: run
+        env:
+          CP_USERNAME: ${{ secrets.CP_USERNAME }}
+          CP_TOKEN: ${{ secrets.CP_TOKEN }}
+          CP_PASSWORD: ${{ secrets.CP_PASSWORD }}
+        # Exit codes 2 (changed) and 3 (auth-error) are expected, non-crash outcomes — see
+        # run.ts's main(). Only a missing/invalid JSON.parse below means the run actually
+        # crashed, and that's left to fail this step loudly rather than being swallowed.
+        run: |
+          pnpm schema:check > schema-monitor-output.json || true
+          cat schema-monitor-output.json
+
+          node -e "
+            const fs = require('fs');
+            const out = JSON.parse(fs.readFileSync('schema-monitor-output.json', 'utf-8'));
+            const lines = ['status=' + out.status];
+            if (out.status === 'changed') {
+              lines.push('needs-review=' + Boolean(out.classification.needsReview));
+              lines.push('label=' + (out.classification.label ?? ''));
+              fs.writeFileSync('schema-diff-report.md', out.report);
+            }
+            fs.appendFileSync(process.env.GITHUB_OUTPUT, lines.join('\n') + '\n');
+          "
+
+      - name: Upload diff report
+        if: steps.run.outputs.status == 'changed'
+        uses: actions/upload-artifact@v4
+        with:
+          name: schema-diff-report
+          path: |
+            schema-monitor-output.json
+            schema-diff-report.md
+          retention-days: 30
+
+      - name: Commit updated baseline
+        id: push
+        if: steps.run.outputs.status != 'auth-error'
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+
+          if git diff --quiet -- api-schema/; then
+            echo "No baseline changes to commit."
+            exit 0
+          fi
+
+          if [ "${{ steps.run.outputs.status }}" = "no-change" ]; then
+            # Only internal missing-streak counters moved — no human-relevant diff. Commit
+            # straight to main; there's nothing here for a PR to usefully review.
+            git add api-schema/
+            git commit -m "chore(schema-monitor): update drift-tracking counters"
+            git push
+          else
+            BRANCH="schema-monitor/drift-$(date +%Y%m%d-%H%M%S)"
+            git checkout -b "$BRANCH"
+            git add api-schema/
+            git commit -m "chore(schema-monitor): update baseline after detected drift"
+            git push -u origin "$BRANCH"
+            echo "branch=$BRANCH" >> "$GITHUB_OUTPUT"
+          fi
+
+      - name: Open tracking issue on auth failure
+        if: steps.run.outputs.status == 'auth-error'
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const fs = require('fs');
+            const { message } = JSON.parse(fs.readFileSync('schema-monitor-output.json', 'utf-8'));
+            const title = 'ChargePoint API drift monitor: authentication failing';
+            const { data: existing } = await github.rest.issues.listForRepo({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              state: 'open',
+              labels: ['schema-monitor'],
+            });
+            const body = 'The scheduled drift check couldn\'t authenticate:\n\n' +
+              '```\n' + message + '\n```\n\n' +
+              'Refresh `CP_TOKEN` (or `CP_PASSWORD`) in the repo secrets — see README.md ' +
+              '"Obtaining Tokens Manually". No capture or diff ran this time.';
+            const open = existing.find((i) => i.title === title);
+            if (open) {
+              await github.rest.issues.createComment({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                issue_number: open.number,
+                body,
+              });
+            } else {
+              await github.rest.issues.create({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                title,
+                body,
+                labels: ['schema-monitor'],
+              });
+            }
+
+  open-pr:
+    name: Draft PR from drift
+    needs: check
+    if: needs.check.outputs.status == 'changed'
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ needs.check.outputs.branch }}
+
+      - uses: actions/download-artifact@v4
+        with:
+          name: schema-diff-report
+
+      # Applies only the safe (additive) edits from AGENTS.md's "Adding a new API method"
+      # pattern to src/types.ts / tests/fixtures/ / tests/handlers.ts, runs typecheck + test,
+      # and opens a PR with the label check.outputs.label. If needs-review is true, no source
+      # edits are made — the PR is opened as a draft with the report as its body so a human
+      # decides how src/types.ts should change. No auto-merge in either case; you approve
+      # every PR by hand.
+      #
+      # Fill in your Claude Code Action auth (ANTHROPIC_API_KEY or OAuth secret) below —
+      # this step is a starting point, not a drop-in.
+      - name: Let Claude apply the safe-lane edits and open the PR
+        uses: anthropics/claude-code-action@v1
+        with:
+          anthropic_api_key: ${{ secrets.ANTHROPIC_API_KEY }}
+          prompt: |
+            The ChargePoint API drift monitor found the changes described in
+            schema-diff-report.md (also machine-readable in schema-monitor-output.json).
+
+            Read AGENTS.md and the additive-only policy it documents. If
+            needs-review=${{ needs.check.outputs.needs-review }} is "false", every entry is
+            safe to auto-apply: add new fields to src/types.ts as optional, widen any
+            newly-optional required field the same way, refresh tests/fixtures/*.json and
+            tests/handlers.ts to match, run pnpm typecheck && pnpm test, and open a normal PR
+            from this branch against main with the label "${{ needs.check.outputs.label }}".
+
+            If needs-review is "true", do NOT edit src/types.ts, tests/fixtures/, or
+            tests/handlers.ts. Open the PR as a **draft** with schema-diff-report.md as the
+            body, no label, and a note that a human needs to decide how the type should
+            change.

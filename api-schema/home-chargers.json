@@ -1,0 +1,68 @@
+{
+  "kind": "object",
+  "fields": {
+    "data": {
+      "node": {
+        "kind": "array",
+        "items": {
+          "kind": "object",
+          "fields": {
+            "coordinates": {
+              "node": {
+                "kind": "null"
+              },
+              "optional": false,
+              "missingStreak": 0
+            },
+            "id": {
+              "node": {
+                "kind": "string"
+              },
+              "optional": false,
+              "missingStreak": 0
+            },
+            "label": {
+              "node": {
+                "kind": "null"
+              },
+              "optional": false,
+              "missingStreak": 0
+            },
+            "location": {
+              "node": {
+                "kind": "null"
+              },
+              "optional": false,
+              "missingStreak": 0
+            },
+            "protocolIdentifier": {
+              "node": {
+                "kind": "null"
+              },
+              "optional": false,
+              "missingStreak": 0
+            }
+          }
+        }
+      },
+      "optional": false,
+      "missingStreak": 0
+    },
+    "pagination": {
+      "node": {
+        "kind": "object",
+        "fields": {
+          "nextCursor": {
+            "node": {
+              "kind": "string"
+            },
+            "optional": false,
+            "missingStreak": 0
+          }
+        }
+      },
+      "optional": false,
+      "missingStreak": 0
+    }
+  }
+}

@@ -125,6 +125,31 @@ E2E tests live in `tests/e2e/` and run against the live ChargePoint API with no 
 - **Do not import** `tests/setup.ts` or `tests/handlers.ts` from any e2e file — those start the MSW server.
 - **Excluded from automation**: `restartHomeCharger()`, `startChargingSession()`, `stopChargingSession()` — run manually via CLI.
 
+## API drift monitoring
+
+`scripts/schema-monitor/` (outside `src/`, never built or published) calls the live ChargePoint
+API from a scheduled GitHub Actions run and compares response *shapes* — field names and kinds,
+never values — against the redacted baseline committed in `api-schema/`. See
+`.github/workflows/schema-monitor.yml` for the schedule and `scripts/schema-monitor/types.ts` for
+the core data model (`Shape`, `BaselineNode`, `DiffEntry`, `Classification`).
+
+**The additive-only contract policy** — this is the rule to follow when applying a drift PR by
+hand or reviewing one Claude opened:
+
+| Observed change | Change to make | Label |
+|---|---|---|
+| New field appears in a response | Add to `src/types.ts` as `field?: T` (optional) | `bump:minor` |
+| Required field now sometimes absent | Widen `field: T` → `field?: T` — never delete the field | `bump:patch` |
+| Field type narrows, a field is removed from a required position, or an exported type/method is renamed | **Never auto-applied.** Needs a human decision — this is the one category that can break a consumer's `import` | none |
+
+The published types are a protective contract, not a mirror of ChargePoint's actual responses:
+they should only ever grow more permissive. This is safe because `src/types.ts` has no runtime
+validation (see above) — under TypeScript's structural typing, "add or widen" is provably
+non-breaking for any consumer already compiling against the current types, while "remove or
+narrow" is the only thing that can break one. Never delete a field from a public type just
+because ChargePoint stopped sending it, even permanently — leave it declared (optional) so a
+consumer that reads it still compiles.
+
 ## What NOT to do
 
 - Do not add `zod`, `yup`, or other runtime validation libraries to the library.

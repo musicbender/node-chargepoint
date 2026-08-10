@@ -1,0 +1,150 @@
+{
+  "kind": "object",
+  "fields": {
+    "basedOnUtility": {
+      "node": {
+        "kind": "null"
+      },
+      "optional": false,
+      "missingStreak": 0
+    },
+    "defaultSchedule": {
+      "node": {
+        "kind": "object",
+        "fields": {
+          "weekdays": {
+            "node": {
+              "kind": "object",
+              "fields": {
+                "endTime": {
+                  "node": {
+                    "kind": "string"
+                  },
+                  "optional": false,
+                  "missingStreak": 0
+                },
+                "startTime": {
+                  "node": {
+                    "kind": "string"
+                  },
+                  "optional": false,
+                  "missingStreak": 0
+                }
+              }
+            },
+            "optional": false,
+            "missingStreak": 0
+          },
+          "weekends": {
+            "node": {
+              "kind": "object",
+              "fields": {
+                "endTime": {
+                  "node": {
+                    "kind": "string"
+                  },
+                  "optional": false,
+                  "missingStreak": 0
+                },
+                "startTime": {
+                  "node": {
+                    "kind": "string"
+                  },
+                  "optional": false,
+                  "missingStreak": 0
+                }
+              }
+            },
+            "optional": false,
+            "missingStreak": 0
+          }
+        }
+      },
+      "optional": false,
+      "missingStreak": 0
+    },
+    "hasTouPricing": {
+      "node": {
+        "kind": "boolean"
+      },
+      "optional": false,
+      "missingStreak": 0
+    },
+    "hasUtilityInfo": {
+      "node": {
+        "kind": "boolean"
+      },
+      "optional": false,
+      "missingStreak": 0
+    },
+    "scheduleEnabled": {
+      "node": {
+        "kind": "boolean"
+      },
+      "optional": false,
+      "missingStreak": 0
+    },
+    "userSchedule": {
+      "node": {
+        "kind": "object",
+        "fields": {
+          "weekdays": {
+            "node": {
+              "kind": "object",
+              "fields": {
+                "endTime": {
+                  "node": {
+                    "kind": "string"
+                  },
+                  "optional": false,
+                  "missingStreak": 0
+                },
+                "startTime": {
+                  "node": {
+                    "kind": "string"
+                  },
+                  "optional": false,
+                  "missingStreak": 0
+                }
+              }
+            },
+            "optional": false,
+            "missingStreak": 0
+          },
+          "weekends": {
+            "node": {
+              "kind": "object",
+              "fields": {
+                "endTime": {
+                  "node": {
+                    "kind": "string"
+                  },
+                  "optional": false,
+                  "missingStreak": 0
+                },
+                "startTime": {
+                  "node": {
+                    "kind": "string"
+                  },
+                  "optional": false,
+                  "missingStreak": 0
+                }
+              }
+            },
+            "optional": false,
+            "missingStreak": 0
+          }
+        }
+      },
+      "optional": false,
+      "missingStreak": 0
+    },
+    "utilitySchedule": {
+      "node": {
+        "kind": "null"
+      },
+      "optional": false,
+      "missingStreak": 0
+    }
+  }
+}

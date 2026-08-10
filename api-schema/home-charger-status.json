@@ -1,0 +1,108 @@
+{
+  "kind": "object",
+  "fields": {
+    "brand": {
+      "node": {
+        "kind": "string"
+      },
+      "optional": false,
+      "missingStreak": 0
+    },
+    "chargeAmperageSettings": {
+      "node": {
+        "kind": "object",
+        "fields": {
+          "chargeLimit": {
+            "node": {
+              "kind": "number"
+            },
+            "optional": false,
+            "missingStreak": 0
+          },
+          "inProgress": {
+            "node": {
+              "kind": "boolean"
+            },
+            "optional": false,
+            "missingStreak": 0
+          },
+          "possibleChargeLimit": {
+            "node": {
+              "kind": "array",
+              "items": {
+                "kind": "number"
+              }
+            },
+            "optional": false,
+            "missingStreak": 0
+          }
+        }
+      },
+      "optional": false,
+      "missingStreak": 0
+    },
+    "chargingStatus": {
+      "node": {
+        "kind": "string"
+      },
+      "optional": false,
+      "missingStreak": 0
+    },
+    "hasUtilityInfo": {
+      "node": {
+        "kind": "boolean"
+      },
+      "optional": false,
+      "missingStreak": 0
+    },
+    "isConnected": {
+      "node": {
+        "kind": "boolean"
+      },
+      "optional": false,
+      "missingStreak": 0
+    },
+    "isDuringScheduledTime": {
+      "node": {
+        "kind": "boolean"
+      },
+      "optional": false,
+      "missingStreak": 0
+    },
+    "isPluggedIn": {
+      "node": {
+        "kind": "boolean"
+      },
+      "optional": false,
+      "missingStreak": 0
+    },
+    "isReminderEnabled": {
+      "node": {
+        "kind": "boolean"
+      },
+      "optional": false,
+      "missingStreak": 0
+    },
+    "macAddress": {
+      "node": {
+        "kind": "string"
+      },
+      "optional": false,
+      "missingStreak": 0
+    },
+    "model": {
+      "node": {
+        "kind": "string"
+      },
+      "optional": false,
+      "missingStreak": 0
+    },
+    "plugInReminderTime": {
+      "node": {
+        "kind": "string"
+      },
+      "optional": false,
+      "missingStreak": 0
+    }
+  }
+}

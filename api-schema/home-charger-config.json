@@ -1,0 +1,170 @@
+{
+  "kind": "object",
+  "fields": {
+    "settings": {
+      "node": {
+        "kind": "object",
+        "fields": {
+          "flashlightReset": {
+            "node": {
+              "kind": "boolean"
+            },
+            "optional": false,
+            "missingStreak": 0
+          },
+          "hasUtilityInfo": {
+            "node": {
+              "kind": "boolean"
+            },
+            "optional": false,
+            "missingStreak": 0
+          },
+          "indicatorLightEcoMode": {
+            "node": {
+              "kind": "string"
+            },
+            "optional": false,
+            "missingStreak": 0
+          },
+          "isInstalledByInstaller": {
+            "node": {
+              "kind": "boolean"
+            },
+            "optional": false,
+            "missingStreak": 0
+          },
+          "isPairedWithNest": {
+            "node": {
+              "kind": "boolean"
+            },
+            "optional": false,
+            "missingStreak": 0
+          },
+          "led": {
+            "node": {
+              "kind": "object",
+              "fields": {
+                "brightness": {
+                  "node": {
+                    "kind": "object",
+                    "fields": {
+                      "currentBrightnessSettings": {
+                        "node": {
+                          "kind": "number"
+                        },
+                        "optional": false,
+                        "missingStreak": 0
+                      },
+                      "inProgress": {
+                        "node": {
+                          "kind": "boolean"
+                        },
+                        "optional": false,
+                        "missingStreak": 0
+                      },
+                      "isEnabled": {
+                        "node": {
+                          "kind": "boolean"
+                        },
+                        "optional": false,
+                        "missingStreak": 0
+                      },
+                      "level": {
+                        "node": {
+                          "kind": "string"
+                        },
+                        "optional": false,
+                        "missingStreak": 0
+                      },
+                      "supportedLevels": {
+                        "node": {
+                          "kind": "array",
+                          "items": {
+                            "kind": "string"
+                          }
+                        },
+                        "optional": false,
+                        "missingStreak": 0
+                      }
+                    }
+                  },
+                  "optional": false,
+                  "missingStreak": 0
+                }
+              }
+            },
+            "optional": false,
+            "missingStreak": 0
+          },
+          "macAddress": {
+            "node": {
+              "kind": "string"
+            },
+            "optional": false,
+            "missingStreak": 0
+          },
+          "powerSource": {
+            "node": {
+              "kind": "object",
+              "fields": {
+                "amps": {
+                  "node": {
+                    "kind": "number"
+                  },
+                  "optional": false,
+                  "missingStreak": 0
+                },
+                "type": {
+                  "node": {
+                    "kind": "string"
+                  },
+                  "optional": false,
+                  "missingStreak": 0
+                }
+              }
+            },
+            "optional": false,
+            "missingStreak": 0
+          },
+          "serialNumber": {
+            "node": {
+              "kind": "string"
+            },
+            "optional": false,
+            "missingStreak": 0
+          },
+          "stationNickname": {
+            "node": {
+              "kind": "string"
+            },
+            "optional": false,
+            "missingStreak": 0
+          },
+          "streetAddress": {
+            "node": {
+              "kind": "string"
+            },
+            "optional": false,
+            "missingStreak": 0
+          },
+          "utility": {
+            "node": {
+              "kind": "null"
+            },
+            "optional": false,
+            "missingStreak": 0
+          },
+          "worksWithNest": {
+            "node": {
+              "kind": "boolean"
+            },
+            "optional": false,
+            "missingStreak": 0
+          }
+        }
+      },
+      "optional": false,
+      "missingStreak": 0
+    }
+  }
+}

@@ -1,0 +1,123 @@
+{
+  "kind": "object",
+  "fields": {
+    "accountBalance": {
+      "node": {
+        "kind": "object",
+        "fields": {
+          "accountNumber": {
+            "node": {
+              "kind": "string"
+            },
+            "optional": false,
+            "missingStreak": 0
+          },
+          "accountState": {
+            "node": {
+              "kind": "string"
+            },
+            "optional": false,
+            "missingStreak": 0
+          },
+          "balance": {
+            "node": {
+              "kind": "object",
+              "fields": {
+                "amount": {
+                  "node": {
+                    "kind": "string"
+                  },
+                  "optional": false,
+                  "missingStreak": 0
+                },
+                "currency": {
+                  "node": {
+                    "kind": "string"
+                  },
+                  "optional": false,
+                  "missingStreak": 0
+                }
+              }
+            },
+            "optional": false,
+            "missingStreak": 0
+          }
+        }
+      },
+      "optional": false,
+      "missingStreak": 0
+    },
+    "user": {
+      "node": {
+        "kind": "object",
+        "fields": {
+          "email": {
+            "node": {
+              "kind": "string"
+            },
+            "optional": false,
+            "missingStreak": 0
+          },
+          "evatarUrl": {
+            "node": {
+              "kind": "string"
+            },
+            "optional": false,
+            "missingStreak": 0
+          },
+          "familyName": {
+            "node": {
+              "kind": "string"
+            },
+            "optional": false,
+            "missingStreak": 0
+          },
+          "fullName": {
+            "node": {
+              "kind": "string"
+            },
+            "optional": false,
+            "missingStreak": 0
+          },
+          "givenName": {
+            "node": {
+              "kind": "string"
+            },
+            "optional": false,
+            "missingStreak": 0
+          },
+          "phone": {
+            "node": {
+              "kind": "string"
+            },
+            "optional": false,
+            "missingStreak": 0
+          },
+          "phoneCountryId": {
+            "node": {
+              "kind": "number"
+            },
+            "optional": false,
+            "missingStreak": 0
+          },
+          "userId": {
+            "node": {
+              "kind": "number"
+            },
+            "optional": false,
+            "missingStreak": 0
+          },
+          "username": {
+            "node": {
+              "kind": "string"
+            },
+            "optional": false,
+            "missingStreak": 0
+          }
+        }
+      },
+      "optional": false,
+      "missingStreak": 0
+    }
+  }
+}

@@ -1,0 +1,68 @@
+{
+  "kind": "object",
+  "fields": {
+    "deviceIp": {
+      "node": {
+        "kind": "string"
+      },
+      "optional": false,
+      "missingStreak": 0
+    },
+    "lastConnectedAt": {
+      "node": {
+        "kind": "string"
+      },
+      "optional": false,
+      "missingStreak": 0
+    },
+    "lastOtaUpdate": {
+      "node": {
+        "kind": "string"
+      },
+      "optional": false,
+      "missingStreak": 0
+    },
+    "macAddress": {
+      "node": {
+        "kind": "string"
+      },
+      "optional": false,
+      "missingStreak": 0
+    },
+    "modelNumber": {
+      "node": {
+        "kind": "string"
+      },
+      "optional": false,
+      "missingStreak": 0
+    },
+    "serialNumber": {
+      "node": {
+        "kind": "string"
+      },
+      "optional": false,
+      "missingStreak": 0
+    },
+    "softwareVersion": {
+      "node": {
+        "kind": "string"
+      },
+      "optional": false,
+      "missingStreak": 0
+    },
+    "stopChargeSupported": {
+      "node": {
+        "kind": "boolean"
+      },
+      "optional": false,
+      "missingStreak": 0
+    },
+    "wifiMac": {
+      "node": {
+        "kind": "string"
+      },
+      "optional": false,
+      "missingStreak": 0
+    }
+  }
+}

@@ -1,0 +1,84 @@
+{
+  "kind": "object",
+  "fields": {
+    "user_status": {
+      "node": {
+        "kind": "object",
+        "fields": {
+          "charging_status": {
+            "node": {
+              "kind": "object",
+              "fields": {
+                "current_charging": {
+                  "node": {
+                    "kind": "string"
+                  },
+                  "optional": false,
+                  "missingStreak": 0
+                },
+                "session_id": {
+                  "node": {
+                    "kind": "number"
+                  },
+                  "optional": false,
+                  "missingStreak": 0
+                },
+                "start_time": {
+                  "node": {
+                    "kind": "number"
+                  },
+                  "optional": false,
+                  "missingStreak": 0
+                },
+                "stations": {
+                  "node": {
+                    "kind": "array",
+                    "items": {
+                      "kind": "object",
+                      "fields": {
+                        "id": {
+                          "node": {
+                            "kind": "number"
+                          },
+                          "optional": false,
+                          "missingStreak": 0
+                        },
+                        "lat": {
+                          "node": {
+                            "kind": "number"
+                          },
+                          "optional": false,
+                          "missingStreak": 0
+                        },
+                        "lon": {
+                          "node": {
+                            "kind": "number"
+                          },
+                          "optional": false,
+                          "missingStreak": 0
+                        },
+                        "name": {
+                          "node": {
+                            "kind": "string"
+                          },
+                          "optional": false,
+                          "missingStreak": 0
+                        }
+                      }
+                    }
+                  },
+                  "optional": false,
+                  "missingStreak": 0
+                }
+              }
+            },
+            "optional": false,
+            "missingStreak": 0
+          }
+        }
+      },
+      "optional": false,
+      "missingStreak": 0
+    }
+  }
+}
