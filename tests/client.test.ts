@@ -127,9 +127,13 @@ describe('getUserChargingStatus()', () => {
     const status = await client.getUserChargingStatus();
     expect(status).not.toBeNull();
     expect(status?.sessionId).toBe(1);
-    expect(status?.state).toBe('CHARGING');
+    // 'in_use' matches the live API's vocabulary for this field, distinct from the
+    // device-plane's ChargingStatus ('CHARGING'/etc).
+    expect(status?.state).toBe('in_use');
     expect(status?.startTime).toBeInstanceOf(Date);
+    expect(status?.startTime.getTime()).toBe(1609459200000);
     expect(status?.stations).toHaveLength(1);
+    expect(status?.stations[0]?.id).toBe(1);
   });
 
   it('returns null when no active session', async () => {

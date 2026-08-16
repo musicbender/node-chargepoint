@@ -246,9 +246,9 @@ describe('ChargingSession.stopByDevice()', () => {
         if ('user_status' in body) {
           return HttpResponse.json({
             user_status: {
-              charging_status: {
-                session_id: TEST_SESSION_ID, start_time: 1609459200000,
-                current_charging: 'CHARGING', stations: [],
+              charging: {
+                sessionId: TEST_SESSION_ID, startTimeUTC: 1609459200,
+                state: 'in_use', stations: [],
               },
             },
           });
@@ -325,9 +325,9 @@ describe('ChargingSession.stopByDevice()', () => {
         if ('user_status' in body) {
           return HttpResponse.json({
             user_status: {
-              charging_status: {
-                session_id: TEST_SESSION_ID_100, start_time: 1609459200000,
-                current_charging: 'CHARGING', stations: [],
+              charging: {
+                sessionId: TEST_SESSION_ID_100, startTimeUTC: 1609459200,
+                state: 'in_use', stations: [],
               },
             },
           });
@@ -370,9 +370,9 @@ describe('ChargingSession.stopByDevice()', () => {
         if ('user_status' in body) {
           return HttpResponse.json({
             user_status: {
-              charging_status: {
-                session_id: TEST_SESSION_ID_100, start_time: 1609459200000,
-                current_charging: 'CHARGING', stations: [],
+              charging: {
+                sessionId: TEST_SESSION_ID_100, startTimeUTC: 1609459200,
+                state: 'in_use', stations: [],
               },
             },
           });
@@ -469,7 +469,7 @@ describe('ChargingSession.start()', () => {
           if (callCount < 3) {
             return HttpResponse.json({ user_status: null });
           }
-          return HttpResponse.json({ user_status: { charging_status: { session_id: TEST_SESSION_ID, start_time: 1609459200000, current_charging: 'CHARGING', stations: [] } } });
+          return HttpResponse.json({ user_status: { charging: { sessionId: TEST_SESSION_ID, startTimeUTC: 1609459200, state: 'in_use', stations: [] } } });
         }
         return new HttpResponse(null, { status: 400 });
       }),
