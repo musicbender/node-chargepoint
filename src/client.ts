@@ -577,11 +577,17 @@ export class ChargePoint {
 
     // Device plane had no session id — try driver plane
     const userStatus = await this.getUserChargingStatus();
-    if (userStatus) {
+    if (userStatus && typeof userStatus.sessionId === 'number' && userStatus.sessionId > 0) {
       const session = await this.getChargingSession(userStatus.sessionId);
-      session._ensureDeviceId(chargerId);
-      session._ensureOutletNumber(1);
-      return session;
+      // The driver plane reports the account's active session, which may belong to a
+      // different charger in a multi-charger household. Accept it only when it names
+      // this charger, or names no device at all (in which case the device plane already
+      // corroborated that `chargerId` is CHARGING, above).
+      if (session.deviceId === chargerId || session.deviceId === 0) {
+        session._ensureDeviceId(chargerId);
+        session._ensureOutletNumber(1);
+        return session;
+      }
     }
 
     return null;

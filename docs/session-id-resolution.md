@@ -13,9 +13,18 @@ ChargePoint's REST API exposes an active charging session through two independen
   `sessionId` only when the charger model's status endpoint happens to include one — some
   models don't.
 
-`ChargingSession.resolveActiveByDevice()` (used by `stopChargingSession(deviceId)`) and
-`getHomeChargerSession()` already try both planes, in order, and merge the result — that
-logic hasn't changed. What changed is that the driver plane used to be silently broken.
+`ChargingSession.resolveActiveByDevice()` (used by `stopChargingSession(deviceId)`),
+`getHomeChargerSession()`, and `startChargingSession()` all try both planes and merge the
+result. What changed is that the driver plane used to be silently broken.
+
+### Sessions are always tied back to a device
+
+Because the driver plane reports whatever session the *account* is running, it may name a
+different charger than the one you asked about. Every resolution path therefore accepts a
+driver-plane session only when it either names your device, or names no device at all —
+in which case the device plane must independently report that charger as `CHARGING`
+before the session is claimed. Without that check, a two-charger household could get back
+the wrong charger's session and stop the wrong car.
 
 ## Why this used to fail for auto-started sessions
 

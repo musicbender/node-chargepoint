@@ -257,8 +257,13 @@ Returns `null` when the charger is not actively charging or no session can be re
 Resolution order:
 1. **Device plane** — reads the session id from `getHomeChargerStatus` when the device API
    surfaces it.
-2. **Driver plane fallback** — calls `getUserChargingStatus` for driver-authenticated sessions
-   (started via this library's `startChargingSession`).
+2. **Driver plane fallback** — calls `getUserChargingStatus`, which resolves any session bound
+   to the authenticated driver, including ones the car auto-started on plug-in.
+
+A driver-plane session is only accepted when it actually belongs to `chargerId` (or names no
+device at all, in which case the device plane already confirmed this charger is charging). In a
+multi-charger household this prevents handing back a *different* charger's session under this
+charger's identity — which would stop the wrong car on `session.stop()`.
 
 `getHomeChargerStatus` also surfaces optional live telemetry fields when the device API includes
 them: `sessionId`, `energyKwh`, `powerKw`, and `sessionStartTime`.
