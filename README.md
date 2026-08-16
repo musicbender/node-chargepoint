@@ -290,8 +290,10 @@ on some home-charger sessions) — otherwise `session.stop()` would send a stop 
 ```typescript
 const status = await client.getUserChargingStatus();
 if (status) {
-  console.log(status.state);      // "CHARGING"
+  console.log(status.state);      // "in_use" — driver-plane vocabulary, not ChargingStatus
   console.log(status.sessionId);  // 1234567890
+  console.log(status.startTime);  // Date — when the session began
+  console.log(status.asOf);       // Date — server time this snapshot reflects
 
   const session = await client.getChargingSession(status.sessionId);
   console.log(session.chargingState);  // "CHARGING"

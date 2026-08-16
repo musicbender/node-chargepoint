@@ -83,7 +83,10 @@ const status = await client.getUserChargingStatus();
 if (status) {
   console.log(status.sessionId);   // 1234567890
   console.log(status.state);       // "in_use"
-  console.log(status.startTime);   // Date
+  console.log(status.startTime);   // Date — when the session began; the only source of
+                                    // this for an auto-started session, since you never
+                                    // called startChargingSession() yourself
+  console.log(status.asOf);        // Date — server time this snapshot reflects
 
   const session = await client.getChargingSession(status.sessionId);
   await session.stop();

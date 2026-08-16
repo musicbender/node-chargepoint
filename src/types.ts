@@ -265,6 +265,8 @@ export type DriverChargingState = 'in_use' | (string & {});
 export interface UserChargingStatus {
   sessionId: number;
   startTime: Date;
+  /** Server time this snapshot reflects (the API's `currentTimeUTC`) — not your local poll time. */
+  asOf: Date;
   state: DriverChargingState;
   stations: Station[];
 }

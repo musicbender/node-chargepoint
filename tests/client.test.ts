@@ -132,6 +132,8 @@ describe('getUserChargingStatus()', () => {
     expect(status?.state).toBe('in_use');
     expect(status?.startTime).toBeInstanceOf(Date);
     expect(status?.startTime.getTime()).toBe(1609459200000);
+    expect(status?.asOf).toBeInstanceOf(Date);
+    expect(status?.asOf.getTime()).toBe(1609462800000);
     expect(status?.stations).toHaveLength(1);
     expect(status?.stations[0]?.id).toBe(1);
   });

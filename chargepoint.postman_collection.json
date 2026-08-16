@@ -348,7 +348,7 @@
               "raw": "{\n  \"user_status\": {\n    \"mfhs\": {}\n  }\n}",
               "options": { "raw": { "language": "json" } }
             },
-            "description": "Returns the user's current charging session status, or null if not currently charging.\n\n**Returns:** `UserChargingStatus | null` — `{ sessionId, startTime, state, stations[] }`"
+            "description": "Returns the user's current charging session status, or null if not currently charging.\n\n**Returns:** `UserChargingStatus | null` — `{ sessionId, startTime, asOf, state, stations[] }`"
           },
           "event": [
             {

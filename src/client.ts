@@ -280,9 +280,10 @@ export class ChargePoint {
 
     return {
       sessionId: charging.sessionId as number,
-      // startTimeUTC is Unix seconds, unlike the millisecond timestamps used elsewhere in
-      // this API.
+      // startTimeUTC/currentTimeUTC are Unix seconds, unlike the millisecond timestamps
+      // used elsewhere in this API.
       startTime: parseSecTimestamp(charging.startTimeUTC),
+      asOf: parseSecTimestamp(charging.currentTimeUTC),
       state: typeof charging.state === 'string' ? charging.state : '',
       stations,
     };
