@@ -39,7 +39,7 @@ export class ChargePoint {
   private _username: string;
   private _coulombToken: string | null = null;
   private _userId: number | null = null;
-  private _region: string;
+  private _region: string = 'NA';
   private _timeout: number | undefined;
   private _debug: ((msg: string) => void) | undefined;
   private _onTokenRotated: ((token: string) => void) | undefined;
