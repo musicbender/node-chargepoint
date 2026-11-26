@@ -1,5 +1,8 @@
 # node-chargepoint
 
+> **⚠️ This repository has moved and is now archived.**
+> Development continues in the zeal monorepo: https://github.com/musicbender/zeal/tree/main/packages/node-chargepoint
+
 ![Pre-release](https://img.shields.io/badge/status-pre--release-orange?style=flat-square)
 ![Not production ready](https://img.shields.io/badge/production-not%20ready-red?style=flat-square)
 
